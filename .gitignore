@@ -8,3 +8,5 @@ npm-debug.log
 *~
 *.lock
 *lock.json
+dist/*.js
+dist/*.ts
