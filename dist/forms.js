@@ -26,6 +26,12 @@ class Form {
         const q = new question_1.QuestionRating(this.questions.length, text);
         this.questions.push(q);
     }
+    validateResponseN(r) {
+        // FIXME: later issues with matrix response keys
+        const r2 = new Map();
+        r.forEach((v, k) => { r2.set(k.toString(), v); });
+        return this.validateResponse(r2);
+    }
     validateResponse(r) {
         const success = {};
         let validationResult = success;

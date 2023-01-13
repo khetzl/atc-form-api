@@ -6,13 +6,13 @@ export class Form  {
     campaignText: string;
     formId: number;
     questions: Question[];
-    
+
     constructor(campaignId: number, formId: number, campaignText: string) {
         this.campaignId = campaignId;
         this.campaignText = campaignText;
         this.formId = formId;
         this.questions = [];
-    }   
+    }
 
     setText(campaignText: string) : void {
         this.campaignText = campaignText;
@@ -34,6 +34,13 @@ export class Form  {
         this.questions.push(q);
     }
 
+    validateResponseN(r: Map<number, any>) : ValidationResult {
+        // FIXME: later issues with matrix response keys
+        const r2 = new Map<string, any>();
+        r.forEach((v:any,k:number) => { r2.set(k.toString(),v) });
+        return this.validateResponse(r2);
+    }
+
     validateResponse(r: Map<string, any>) : ValidationResult {
         const success: ValidationSuccess = {};
         let validationResult: ValidationResult = success;
@@ -45,8 +52,7 @@ export class Form  {
                     {reason: VErrorReason.Missing, qIndex: q.index, value};
                 validationResult = validationError;
             }else{
-            try
-                {
+                try{
                     q.isValidResponse(value);
                 } catch (e) {
                     let message = 'Unknown Error';
@@ -60,5 +66,5 @@ export class Form  {
         return validationResult;
     }
 
-    
+
 };

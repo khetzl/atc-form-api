@@ -10,5 +10,6 @@ export declare class Form {
     addBinary(text: string): void;
     addBinaryCustom(text: string, choiceA: string, choiceB: string): void;
     addRating(text: string): void;
+    validateResponseN(r: Map<number, any>): ValidationResult;
     validateResponse(r: Map<string, any>): ValidationResult;
 }
