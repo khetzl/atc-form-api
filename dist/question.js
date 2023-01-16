@@ -22,6 +22,31 @@ class Question {
         return;
     }
     ;
+    toObject() {
+        return ({
+            index: this.index,
+            questionType: this.questionType,
+            questionText: this.questionText,
+        });
+    }
+    static fromObject(json) {
+        // FIXME: This seems to be pretty labour-intensive
+        switch (json.questionType) {
+            case QuestionType.Binary:
+                return QuestionBinary.fromObject(json);
+            case QuestionType.Rating:
+                return QuestionRating.fromObject(json);
+            case QuestionType.MultipleChoice:
+                return QuestionMultipleChoice.fromObject(json);
+            case QuestionType.Text:
+                return QuestionText.fromObject(json);
+            case QuestionType.Matrix:
+                return QuestionMatrix.fromObject(json);
+            default:
+                throw new Error("Unknown question type");
+                break;
+        }
+    }
 }
 exports.Question = Question;
 class QuestionBinary extends Question {
@@ -45,6 +70,22 @@ class QuestionBinary extends Question {
             throw new Error(validation_1.VErrorReason.UnexpectedType);
         }
     }
+    toObject() {
+        return ({
+            index: this.index,
+            questionType: this.questionType,
+            questionText: this.questionText,
+            customChoiceA: this.customChoiceA,
+            customChoiceB: this.customChoiceB,
+        });
+    }
+    static fromObject(json) {
+        const q = new QuestionBinary(json.index, json.questionText);
+        if (json.customChoiceA && json.customChoiceB) {
+            q.setCustomChoices(json.customChoiceA, json.customChoiceB);
+        }
+        return q;
+    }
 }
 exports.QuestionBinary = QuestionBinary;
 class QuestionRating extends Question {
@@ -67,13 +108,36 @@ class QuestionRating extends Question {
         }
     }
     setCustomRange(n) { this.range = n; }
+    toObject() {
+        return ({
+            index: this.index,
+            questionType: this.questionType,
+            questionText: this.questionText,
+            range: this.range,
+        });
+    }
+    static fromObject(json) {
+        const q = new QuestionRating(json.index, json.questionText);
+        return q;
+    }
 }
 exports.QuestionRating = QuestionRating;
 class QuestionMultipleChoice extends Question {
-    constructor() {
-        super(...arguments);
+    constructor(index, questionText) {
+        super(index, QuestionType.MultipleChoice, questionText);
         this.isRandomOrder = false;
         this.choices = [];
+    }
+    toObject() {
+        return ({
+            index: this.index,
+            questionType: this.questionType,
+            questionText: this.questionText,
+        });
+    }
+    static fromObject(json) {
+        const q = new QuestionMultipleChoice(json.index, json.questionText);
+        return q;
     }
 }
 exports.QuestionMultipleChoice = QuestionMultipleChoice;
@@ -81,12 +145,26 @@ class QuestionText extends Question {
     constructor(index, questionText) {
         super(index, QuestionType.Text, questionText);
     }
+    toObject() {
+        return ({
+            index: this.index,
+            questionType: this.questionType,
+            questionText: this.questionText,
+        });
+    }
 }
 exports.QuestionText = QuestionText;
 class QuestionMatrix extends Question {
-    constructor() {
-        super(...arguments);
+    constructor(index, questionText) {
+        super(index, QuestionType.Matrix, questionText);
         this.lines = [];
+    }
+    toObject() {
+        return ({
+            index: this.index,
+            questionType: this.questionType,
+            questionText: this.questionText,
+        });
     }
 }
 exports.QuestionMatrix = QuestionMatrix;

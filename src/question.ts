@@ -22,6 +22,8 @@ type QMLine = {
     questionText: string,
 }
 
+export type QuestionJSON = QuestionBinaryJSON | QuestionRatingJSON | QuestionMultipleChoiceJSON | QuestionMatrixJSON | QuestionTextJSON;
+
 type ResponseValueType = number | string; // FIXME: to be extended
 
 export type MatrixResponseValue = Map<number, string|number>;
@@ -42,7 +44,43 @@ export class Question {
     isValidResponse(v: ResponseValueType) : void {
         return;
     };
+
+    toObject() : QuestionJSON {
+        return ({
+            index: this.index,
+            questionType: this.questionType,
+            questionText: this.questionText,
+        });
+    }
+
+    static fromObject(json: QuestionJSON) : Question {
+        // FIXME: This seems to be pretty labour-intensive
+        switch (json.questionType) {
+            case QuestionType.Binary:
+                return QuestionBinary.fromObject(json as QuestionBinaryJSON);
+            case QuestionType.Rating:
+                return QuestionRating.fromObject(json as QuestionRatingJSON);
+            case QuestionType.MultipleChoice:
+                return QuestionMultipleChoice.fromObject(json as QuestionMultipleChoiceJSON);
+            case QuestionType.Text:
+                return QuestionText.fromObject(json as QuestionTextJSON);
+            case QuestionType.Matrix:
+                return QuestionMatrix.fromObject(json as QuestionMatrixJSON);
+            default:
+                throw new Error("Unknown question type");
+                break;
+        }                
+    }
 }
+
+export type QuestionBinaryJSON = {
+    index: number,
+    questionType: QuestionType,
+    questionText: string,
+    customChoiceA? : string,
+    customChoiceB? : string,
+}
+
 export class QuestionBinary extends Question {
     customChoiceA?: string;
     customChoiceB?: string;   
@@ -67,7 +105,32 @@ export class QuestionBinary extends Question {
             throw new Error(VErrorReason.UnexpectedType);
         }
     }
+
+    toObject() : QuestionBinaryJSON {
+        return ({
+            index: this.index,
+            questionType: this.questionType,
+            questionText: this.questionText,
+            customChoiceA: this.customChoiceA,
+            customChoiceB: this.customChoiceB,
+        });
+    }
+    
+    static fromObject(json: QuestionBinaryJSON) : QuestionBinary {
+        const q = new QuestionBinary(json.index, json.questionText);
+        if (json.customChoiceA && json.customChoiceB) {
+            q.setCustomChoices(json.customChoiceA, json.customChoiceB);
+        }
+        return q;
+    }
 }
+
+export type QuestionRatingJSON = {
+    index: number,
+    questionType: QuestionType,
+    questionText: string,
+    range: number,
+};
 
 export class QuestionRating extends Question {
     range = 10;
@@ -88,20 +151,90 @@ export class QuestionRating extends Question {
             throw new Error(VErrorReason.UnexpectedType);
         }
     }
+    
     setCustomRange(n: number) : void { this.range = n }
+
+    toObject() : QuestionRatingJSON {
+        return ({
+            index: this.index,
+            questionType: this.questionType,
+            questionText: this.questionText,
+            range: this.range,
+        })
+    }
+    
+    static fromObject(json: QuestionRatingJSON) : QuestionRating {
+        const q = new QuestionRating(json.index, json.questionText);
+        return q;
+    }
 }
+
+export type QuestionMultipleChoiceJSON = {
+    index: number,
+    questionType: QuestionType,
+    questionText: string,
+};
 
 export class QuestionMultipleChoice extends Question {
     isRandomOrder = false;
     choices: QMCChoice[] = [];
+
+    constructor(index: number, questionText: string) {
+        super(index, QuestionType.MultipleChoice, questionText);
+    }
+    
+    toObject() : QuestionMultipleChoiceJSON {
+        return ({
+            index: this.index,
+            questionType: this.questionType,
+            questionText: this.questionText,
+        })
+    }
+    
+    static fromObject(json: QuestionMultipleChoiceJSON) : QuestionMultipleChoice {
+        const q = new QuestionMultipleChoice(json.index, json.questionText);
+        return q;
+    }
 }
+
+export type QuestionTextJSON = {
+    index: number,
+    questionType: QuestionType,
+    questionText: string,
+};
 
 export class QuestionText extends Question {
     constructor (index: number, questionText: string) {
         super(index, QuestionType.Text, questionText);
     }
+
+    toObject() : QuestionTextJSON {
+        return ({
+            index: this.index,
+            questionType: this.questionType,
+            questionText: this.questionText,
+        })
+    }
 }
+
+export type QuestionMatrixJSON = {
+    index: number,
+    questionType: QuestionType,
+    questionText: string,
+};
 
 export class QuestionMatrix extends Question {
     lines: QMLine[] = [];
+
+    constructor (index: number, questionText: string) {
+        super(index, QuestionType.Matrix, questionText);
+    }
+
+    toObject() : QuestionMatrixJSON {
+        return ({
+            index: this.index,
+            questionType: this.questionType,
+            questionText: this.questionText,
+        })
+    }
 }

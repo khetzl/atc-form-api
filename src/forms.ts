@@ -1,21 +1,28 @@
-import {Question, QuestionBinary, QuestionRating} from './question';
+import {Question, QuestionBinary, QuestionRating, QuestionJSON} from './question';
 import {ValidationSuccess, ValidationError, ValidationResult, VErrorReason} from './validation';
 
+type FormJSON = {
+    formId: string,
+    formText: string,
+    campaignId?: string,
+    questions: QuestionJSON[],
+}
+
 export class Form  {
-    campaignId: number;
-    campaignText: string;
-    formId: number;
+    formId: string;
+    formText: string;
+    campaignId?: string;
     questions: Question[];
 
-    constructor(campaignId: number, formId: number, campaignText: string) {
-        this.campaignId = campaignId;
-        this.campaignText = campaignText;
+    constructor(formId: string, text: string) {
         this.formId = formId;
+        this.formText = text;
+        //this.campaignId = campaignId;
         this.questions = [];
     }
 
     setText(campaignText: string) : void {
-        this.campaignText = campaignText;
+        this.formText = campaignText;
     }
 
     addBinary(text: string) : void {
@@ -39,6 +46,23 @@ export class Form  {
         const r2 = new Map<string, any>();
         r.forEach((v:any,k:number) => { r2.set(k.toString(),v) });
         return this.validateResponse(r2);
+    }
+
+    toObject() : FormJSON {
+        const qs: QuestionJSON[] = [];
+        this.questions.forEach((q,i) => {qs.push(q.toObject())});   
+        return ({
+            formId: this.formId,
+            formText: this.formText,
+            campaignId: this.campaignId,
+            questions: qs,
+        });
+    }
+
+    static fromObject(json: FormJSON) : Form {
+        const f = new Form(json.formId, json.formText);
+        json.questions.forEach((q,i) => {f.questions.push(Question.fromObject(q))});
+        return f;
     }
 
     validateResponse(r: Map<string, any>) : ValidationResult {

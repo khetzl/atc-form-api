@@ -1,5 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Form = void 0;
+exports.Space = exports.CampaignOwnership = exports.Campaign = exports.Form = void 0;
 var forms_1 = require("./forms");
 Object.defineProperty(exports, "Form", { enumerable: true, get: function () { return forms_1.Form; } });
+var campaigns_1 = require("./campaigns");
+Object.defineProperty(exports, "Campaign", { enumerable: true, get: function () { return campaigns_1.Campaign; } });
+Object.defineProperty(exports, "CampaignOwnership", { enumerable: true, get: function () { return campaigns_1.CampaignOwnership; } });
+var spaces_1 = require("./spaces");
+Object.defineProperty(exports, "Space", { enumerable: true, get: function () { return spaces_1.Space; } });

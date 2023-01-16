@@ -5,18 +5,18 @@ import { Form } from '../src/forms';
 import { QuestionType, QuestionBinary } from '../src/question';
 import {isSuccess, ValidationError} from '../src/validation';
 
-describe("Create Form", () => {
+describe("Form Actions", () => {
     it("New should be empty, and have basics set up", () =>
         {
-            const f = new Form(1,1, "test");
-            expect(f.campaignId).to.eq(1);
-            expect(f.formId).to.eq(1);
-            expect(f.campaignText).to.eq("test");
+            const f = new Form("1", "test");
+            expect(f.campaignId).to.eq(undefined);
+            expect(f.formId).to.eq("1");
+            expect(f.formText).to.eq("test");
             expect(f.questions).to.eql([]);
         });
     it("Adding questions", () =>
         {
-            const f = new Form(1,1, "test");
+            const f = new Form("1", "test");
             expect(f.questions).to.eql([]);
 
             f.addBinary("binary1");
@@ -27,14 +27,27 @@ describe("Create Form", () => {
         });
 });
 
+describe("Form Conversion", () => {
+    it("Conversion bijection - Minimal - Form>JSON>Form", () => {
+        const f = new Form("1", "test");
+        expect(Form.fromObject(f.toObject())).to.deep.equal(f);
+    });
+    it("Conversion bijection - With Questions - Form>JSON>Form", () => {
+        const f = new Form("1", "test");
+        f.addBinary("Binary question?");
+        f.addRating("Rate it!");
+        expect(Form.fromObject(f.toObject())).to.deep.equal(f);
+    });
+});
+
 describe("Validate Form Response", () => {
     it("Empty", () => {
-        const f = new Form(1,1,"test");
+        const f = new Form("1","test");
         const r0 = new Map<string,any>([]);
         expect(isSuccess(f.validateResponse(r0))).to.be.true;
     });
     it("Single validation - binary", () => {
-        const f = new Form(1,1,"test");
+        const f = new Form("1","test");
         f.addBinary("b");
 
         const r0 = new Map<string,any>([['0', 0]]);
@@ -69,7 +82,7 @@ describe("Validate Form Response", () => {
     });
 
     it("Single validation - binary - number key overload", () => {
-        const f = new Form(1,1,"test");
+        const f = new Form("1","test");
         f.addBinary("b");
 
         const r0 = new Map<number,any>([[0, 0]]);
@@ -100,7 +113,7 @@ describe("Validate Form Response", () => {
     });
 
     it("Multiple validations #1 - First demo with sample results", () => {
-        const f = new Form(1, 1, "Heartbeat Demo");
+        const f = new Form("1", "Heartbeat Demo");
         f.addBinaryCustom("How do you feel today?", "Well", "Bad");
         f.addRating("Rate Something!");
         f.addBinary("default");
