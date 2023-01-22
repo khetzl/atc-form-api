@@ -13,6 +13,11 @@ describe("Form Actions", () => {
             expect(f.formId).to.eq("1");
             expect(f.formText).to.eq("test");
             expect(f.questions).to.eql([]);
+            expect(f.toSummary()).to.deep.equal(
+                { formId: "1",
+                  formText: "test",
+                  internalName: "internalName",
+                });
         });
     it("Adding questions", () =>
         {

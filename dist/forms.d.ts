@@ -1,5 +1,10 @@
 import { Question, QuestionJSON } from './question';
 import { ValidationResult } from './validation';
+export type FormSummary = {
+    formId?: string;
+    internalName: string;
+    formText: string;
+};
 type FormJSON = {
     formId: string;
     formText: string;
@@ -17,6 +22,7 @@ export declare class Form {
     addBinaryCustom(text: string, choiceA: string, choiceB: string): void;
     addRating(text: string): void;
     validateResponseN(r: Map<number, any>): ValidationResult;
+    toSummary(): FormSummary;
     toObject(): FormJSON;
     static fromObject(json: FormJSON): Form;
     validateResponse(r: Map<string, any>): ValidationResult;

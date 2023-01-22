@@ -32,6 +32,13 @@ class Form {
         r.forEach((v, k) => { r2.set(k.toString(), v); });
         return this.validateResponse(r2);
     }
+    toSummary() {
+        return {
+            formId: this.formId,
+            formText: this.formText,
+            internalName: "internalName",
+        };
+    }
     toObject() {
         const qs = [];
         this.questions.forEach((q, i) => { qs.push(q.toObject()); });

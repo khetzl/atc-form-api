@@ -1,6 +1,12 @@
 import {Question, QuestionBinary, QuestionRating, QuestionJSON} from './question';
 import {ValidationSuccess, ValidationError, ValidationResult, VErrorReason} from './validation';
 
+export type FormSummary = {
+    formId?: string,
+    internalName: string,
+    formText: string,
+}
+
 type FormJSON = {
     formId: string,
     formText: string,
@@ -46,6 +52,14 @@ export class Form  {
         const r2 = new Map<string, any>();
         r.forEach((v:any,k:number) => { r2.set(k.toString(),v) });
         return this.validateResponse(r2);
+    }
+
+    toSummary() : FormSummary {
+        return {
+            formId: this.formId,
+            formText: this.formText,
+            internalName: "internalName",
+        }
     }
 
     toObject() : FormJSON {
