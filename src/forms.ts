@@ -2,33 +2,33 @@ import {Question, QuestionBinary, QuestionRating, QuestionJSON} from './question
 import {ValidationSuccess, ValidationError, ValidationResult, VErrorReason} from './validation';
 
 export type FormSummary = {
-    formId?: string,
+    formId: string,
     internalName: string,
     formText: string,
 }
 
-type FormJSON = {
+export type FormJSON = {
     formId: string,
+    internalName: string,
     formText: string,
-    campaignId?: string,
     questions: QuestionJSON[],
 }
 
 export class Form  {
     formId: string;
     formText: string;
-    campaignId?: string;
+    internalName: string;
     questions: Question[];
 
-    constructor(formId: string, text: string) {
+    constructor(formId: string, internalName: string, text: string) {
         this.formId = formId;
         this.formText = text;
-        //this.campaignId = campaignId;
+        this.internalName = internalName;
         this.questions = [];
     }
 
-    setText(campaignText: string) : void {
-        this.formText = campaignText;
+    setText(formText: string) : void {
+        this.formText = formText;
     }
 
     addBinary(text: string) : void {
@@ -58,23 +58,23 @@ export class Form  {
         return {
             formId: this.formId,
             formText: this.formText,
-            internalName: "internalName",
+            internalName: this.internalName,
         }
     }
 
     toObject() : FormJSON {
         const qs: QuestionJSON[] = [];
-        this.questions.forEach((q,i) => {qs.push(q.toObject())});   
+        this.questions.forEach((q,i) => {qs.push(q.toObject())});
         return ({
             formId: this.formId,
             formText: this.formText,
-            campaignId: this.campaignId,
+            internalName: this.internalName,
             questions: qs,
         });
     }
 
     static fromObject(json: FormJSON) : Form {
-        const f = new Form(json.formId, json.formText);
+        const f = new Form(json.formId, json.internalName, json.formText);
         json.questions.forEach((q,i) => {f.questions.push(Question.fromObject(q))});
         return f;
     }

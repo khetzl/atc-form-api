@@ -1,23 +1,23 @@
 import { Question, QuestionJSON } from './question';
 import { ValidationResult } from './validation';
 export type FormSummary = {
-    formId?: string;
+    formId: string;
     internalName: string;
     formText: string;
 };
-type FormJSON = {
+export type FormJSON = {
     formId: string;
+    internalName: string;
     formText: string;
-    campaignId?: string;
     questions: QuestionJSON[];
 };
 export declare class Form {
     formId: string;
     formText: string;
-    campaignId?: string;
+    internalName: string;
     questions: Question[];
-    constructor(formId: string, text: string);
-    setText(campaignText: string): void;
+    constructor(formId: string, internalName: string, text: string);
+    setText(formText: string): void;
     addBinary(text: string): void;
     addBinaryCustom(text: string, choiceA: string, choiceB: string): void;
     addRating(text: string): void;
@@ -27,4 +27,3 @@ export declare class Form {
     static fromObject(json: FormJSON): Form;
     validateResponse(r: Map<string, any>): ValidationResult;
 }
-export {};

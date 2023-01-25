@@ -4,14 +4,14 @@ exports.Form = void 0;
 const question_1 = require("./question");
 const validation_1 = require("./validation");
 class Form {
-    constructor(formId, text) {
+    constructor(formId, internalName, text) {
         this.formId = formId;
         this.formText = text;
-        //this.campaignId = campaignId;
+        this.internalName = internalName;
         this.questions = [];
     }
-    setText(campaignText) {
-        this.formText = campaignText;
+    setText(formText) {
+        this.formText = formText;
     }
     addBinary(text) {
         const q = new question_1.QuestionBinary(this.questions.length, text);
@@ -36,7 +36,7 @@ class Form {
         return {
             formId: this.formId,
             formText: this.formText,
-            internalName: "internalName",
+            internalName: this.internalName,
         };
     }
     toObject() {
@@ -45,12 +45,12 @@ class Form {
         return ({
             formId: this.formId,
             formText: this.formText,
-            campaignId: this.campaignId,
+            internalName: this.internalName,
             questions: qs,
         });
     }
     static fromObject(json) {
-        const f = new Form(json.formId, json.formText);
+        const f = new Form(json.formId, json.internalName, json.formText);
         json.questions.forEach((q, i) => { f.questions.push(question_1.Question.fromObject(q)); });
         return f;
     }

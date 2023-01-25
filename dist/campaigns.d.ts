@@ -1,4 +1,5 @@
 import { Address } from './common';
+import { Form, FormJSON } from "./forms";
 export type CampaignSummary = {
     campaignId?: string;
     title: string;
@@ -13,7 +14,7 @@ export type CampaignJSON = {
     description: string;
     createdBy: string;
     ownerSpace?: string;
-    forms?: number[];
+    forms: FormJSON[];
     totalFunding?: number;
     remainingFunding?: number;
     isLive?: boolean;
@@ -30,15 +31,18 @@ export declare class Campaign {
     ownership: CampaignOwnership;
     createdBy: Address;
     ownerSpace?: string;
-    forms: number[];
+    forms: Map<string, Form>;
     totalFunding: number;
     remainingFunding: number;
     isLive: boolean;
     constructor(name: string, desc: string, ownership: CampaignOwnership, createdBy: Address);
     setCampaignId(id: string): void;
     updateFunding(totalFunding: number, remainingFunding: number): void;
-    addForm(formId: number): void;
-    getAllForms(): number[];
+    isOwned(caller: string): boolean;
+    addForm(f: Form): void;
+    getForm(fId: string): Form | undefined;
+    deleteForm(fId: string): void;
+    getAllForms(): Form[];
     toSummary(): CampaignSummary;
     toSummaryWithFormId(formId: number): CampaignSummary;
     toObject(): CampaignJSON;

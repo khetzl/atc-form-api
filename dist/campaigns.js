@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Campaign = exports.CampaignOwnership = void 0;
+const forms_1 = require("./forms");
 var CampaignOwnership;
 (function (CampaignOwnership) {
     CampaignOwnership[CampaignOwnership["Address"] = 0] = "Address";
@@ -17,18 +18,7 @@ class Campaign {
         this.description = desc;
         this.ownership = ownership;
         this.createdBy = createdBy;
-        this.forms = [];
-        // switch (ownership) {
-        //     case CampaignOwnership.Address :
-        //         this.ownerSpace = undefined; //FIXME: this is redundant...
-        //         break;
-        //     case CampaignOwnership.Space :
-        //         this.ownerSpace = ownerSpace;
-        //         break;
-        //     default:
-        //         throw new Error('unexpected Ownership type');
-        //         break;
-        // }
+        this.forms = new Map();
     }
     setCampaignId(id) {
         this.campaignId = id;
@@ -37,13 +27,26 @@ class Campaign {
         this.totalFunding = totalFunding;
         this.remainingFunding = remainingFunding;
     }
-    addForm(formId) {
-        if (!this.forms.includes(formId)) {
-            this.forms.push(formId);
+    isOwned(caller) {
+        switch (this.ownership) {
+            case CampaignOwnership.Address:
+                return caller === this.createdBy;
+            // TODO: space
+            default:
+                throw new Error("unknown ownership");
+                break;
         }
     }
+    addForm(f) {
+        this.forms.set(f.formId, f);
+    }
+    getForm(fId) {
+        return this.forms.get(fId);
+    }
+    deleteForm(fId) {
+    }
     getAllForms() {
-        return this.forms;
+        return Array.from(this.forms.values());
     }
     toSummary() {
         return {
@@ -60,30 +63,38 @@ class Campaign {
         return summary;
     }
     toObject() {
+        let formsJs = [];
+        this.forms.forEach((f) => formsJs.push(f.toObject()));
         return ({
             campaignId: this.campaignId,
             name: this.name,
             description: this.description,
             createdBy: this.createdBy,
             ownerSpace: this.ownerSpace,
-            forms: this.forms,
+            forms: formsJs,
             totalFunding: this.totalFunding,
             remainingFunding: this.remainingFunding,
             isLive: this.isLive,
         });
     }
+    // FIXME: this should be the constructor
     static fromObject(json) {
         const c = new Campaign(json.name, json.description, CampaignOwnership.Address, //json.ownership: CampaignOwnership, // FIXME:
         json.createdBy);
+        if (json.forms) {
+            const fs = new Map();
+            json.forms.forEach((fObj) => {
+                const f = forms_1.Form.fromObject(fObj);
+                fs.set(f.formId, f);
+            });
+            c.forms = fs;
+        }
         // TODO: add other details..
         if (json.campaignId) {
             c.campaignId = json.campaignId;
         }
         if (json.ownerSpace) {
             c.ownerSpace = json.ownerSpace;
-        }
-        if (json.forms) {
-            c.forms = json.forms;
         }
         if (json.isLive) {
             c.isLive = json.isLive;
