@@ -83,7 +83,7 @@ export class Campaign {
     }
 
     deleteForm(fId: string) {
-        
+        this.forms.delete(fId);
     }
 
     getAllForms() : Form[] {
@@ -148,3 +148,4 @@ export class Campaign {
         return c;
     }
 }
+

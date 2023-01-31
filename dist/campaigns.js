@@ -44,6 +44,7 @@ class Campaign {
         return this.forms.get(fId);
     }
     deleteForm(fId) {
+        this.forms.delete(fId);
     }
     getAllForms() {
         return Array.from(this.forms.values());

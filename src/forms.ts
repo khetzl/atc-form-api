@@ -47,13 +47,6 @@ export class Form  {
         this.questions.push(q);
     }
 
-    validateResponseN(r: Map<number, any>) : ValidationResult {
-        // FIXME: later issues with matrix response keys
-        const r2 = new Map<string, any>();
-        r.forEach((v:any,k:number) => { r2.set(k.toString(),v) });
-        return this.validateResponse(r2);
-    }
-
     toSummary() : FormSummary {
         return {
             formId: this.formId,
@@ -79,12 +72,12 @@ export class Form  {
         return f;
     }
 
-    validateResponse(r: Map<string, any>) : ValidationResult {
+    validateResponse(r: Map<number, any>) : ValidationResult {
         const success: ValidationSuccess = {};
         let validationResult: ValidationResult = success;
 
         this.questions.forEach((q,i) => {
-            const value = r.get(q.index.toString());
+            const value = r.get(q.index);
             if (typeof value === "undefined") {
                 const validationError : ValidationError =
                     {reason: VErrorReason.Missing, qIndex: q.index, value};
