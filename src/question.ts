@@ -173,6 +173,7 @@ export type QuestionMultipleChoiceJSON = {
     index: number,
     questionType: QuestionType,
     questionText: string,
+    choices: QMCChoice[],
 };
 
 export class QuestionMultipleChoice extends Question {
@@ -188,11 +189,13 @@ export class QuestionMultipleChoice extends Question {
             index: this.index,
             questionType: this.questionType,
             questionText: this.questionText,
+            choices: this.choices
         })
     }
     
     static fromObject(json: QuestionMultipleChoiceJSON) : QuestionMultipleChoice {
         const q = new QuestionMultipleChoice(json.index, json.questionText);
+        q.choices = json.choices;
         return q;
     }
 }

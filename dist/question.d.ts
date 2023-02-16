@@ -60,6 +60,7 @@ export type QuestionMultipleChoiceJSON = {
     index: number;
     questionType: QuestionType;
     questionText: string;
+    choices: QMCChoice[];
 };
 export declare class QuestionMultipleChoice extends Question {
     isRandomOrder: boolean;

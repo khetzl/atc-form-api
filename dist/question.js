@@ -133,10 +133,12 @@ class QuestionMultipleChoice extends Question {
             index: this.index,
             questionType: this.questionType,
             questionText: this.questionText,
+            choices: this.choices
         });
     }
     static fromObject(json) {
         const q = new QuestionMultipleChoice(json.index, json.questionText);
+        q.choices = json.choices;
         return q;
     }
 }
