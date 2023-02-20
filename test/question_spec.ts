@@ -1,7 +1,7 @@
 import "mocha";
 import { expect } from "chai";
 
-import { QuestionType, QuestionBinary } from '../src/question';
+import { Question, QuestionType, QuestionBinary, QuestionText } from '../src/question';
 import { VErrorReason } from '../src/validation';
 
 describe("Validation - Binary", () => {
@@ -22,5 +22,16 @@ describe("Validation - Binary", () => {
     });
     it("Unaccepted types", () => {
         expect(() => q.isValidResponse("string")).to.throw(VErrorReason.UnexpectedType);
+    });
+});
+
+describe("Conversion", () => {    
+    it("Can convert Text type question from and to JSON", () => {
+        const json = {questionType: 3, questionText: 'asd', index: 0};
+        const q = new QuestionText(0, 'asd');
+        expect(Question.fromObject(json)).to.deep.equal(q);
+        expect(q.toObject()).to.deep.equal(json);
+        // back and forth
+        expect((Question.fromObject(json)).toObject()).to.deep.equal(json);
     });
 });

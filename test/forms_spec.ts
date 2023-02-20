@@ -43,6 +43,43 @@ describe("Form Conversion", () => {
         f.addText("write something!");
         expect(Form.fromObject(f.toObject())).to.deep.equal(f);
     });
+
+    it("Conversion, breaking example", () => {
+        const json = {
+            formId: '1',
+                      formText: 'Heartbeat Demo',
+                      internalName: 'internal',
+                      questions: [
+                          {index: 0,
+                           questionType: 0,
+                           questionText: 'How do you feel today?',
+                           customChoiceA: 'Well',
+                           customChoiceB: 'Bad'},
+                          {index: 1,
+                           questionType: 1,
+                           questionText: 'Rate Something!',
+                           range: 10},
+                          {index: 2,
+                           questionType: 0,
+                           questionText: 'default',
+                           customChoiceA: undefined,
+                           customChoiceB: undefined},
+                          {index: 3,
+                           questionType: 0,
+                           questionText: 'Would you like a tea?',
+                           customChoiceA: undefined,
+                           customChoiceB: undefined},
+                          {index: 4,
+                           questionType: 0,
+                           questionText: 'was this call useful?',
+                           customChoiceA: undefined,
+                           customChoiceB: undefined},
+                          {questionType: 3,
+                           questionText: 'asd',
+                           index: 5}
+                      ]};
+        Form.fromObject(json);
+    });
 });
 
 describe("Validate Form Response", () => {
