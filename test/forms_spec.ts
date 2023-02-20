@@ -40,6 +40,7 @@ describe("Form Conversion", () => {
         const f = new Form("1", "internalName", "test");
         f.addBinary("Binary question?");
         f.addRating("Rate it!");
+        f.addText("write something!");
         expect(Form.fromObject(f.toObject())).to.deep.equal(f);
     });
 });

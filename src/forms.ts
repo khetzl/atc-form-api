@@ -1,4 +1,4 @@
-import {Question, QuestionBinary, QuestionRating, QuestionJSON} from './question';
+import {Question, QuestionBinary, QuestionRating, QuestionText, QuestionJSON} from './question';
 import {ValidationSuccess, ValidationError, ValidationResult, VErrorReason} from './validation';
 
 export type FormSummary = {
@@ -44,6 +44,11 @@ export class Form  {
 
     addRating(text: string) : void {
         const q = new QuestionRating(this.questions.length, text);
+        this.questions.push(q);
+    }
+
+    addText(text: string) : void {
+        const q = new QuestionText(this.questions.length, text);
         this.questions.push(q);
     }
 

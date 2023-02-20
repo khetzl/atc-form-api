@@ -26,6 +26,10 @@ class Form {
         const q = new question_1.QuestionRating(this.questions.length, text);
         this.questions.push(q);
     }
+    addText(text) {
+        const q = new question_1.QuestionText(this.questions.length, text);
+        this.questions.push(q);
+    }
     toSummary() {
         return {
             formId: this.formId,

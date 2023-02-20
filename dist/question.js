@@ -154,6 +154,10 @@ class QuestionText extends Question {
             questionText: this.questionText,
         });
     }
+    static fromObject(json) {
+        const q = new QuestionText(json.index, json.questionText);
+        return q;
+    }
 }
 exports.QuestionText = QuestionText;
 class QuestionMatrix extends Question {

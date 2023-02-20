@@ -21,6 +21,7 @@ export declare class Form {
     addBinary(text: string): void;
     addBinaryCustom(text: string, choiceA: string, choiceB: string): void;
     addRating(text: string): void;
+    addText(text: string): void;
     toSummary(): FormSummary;
     toObject(): FormJSON;
     static fromObject(json: FormJSON): Form;

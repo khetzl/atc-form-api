@@ -218,6 +218,11 @@ export class QuestionText extends Question {
             questionText: this.questionText,
         })
     }
+
+    static fromObject(json: QuestionTextJSON) : QuestionText {
+        const q = new QuestionText(json.index, json.questionText);
+        return q;
+    }
 }
 
 export type QuestionMatrixJSON = {
@@ -240,4 +245,5 @@ export class QuestionMatrix extends Question {
             questionText: this.questionText,
         })
     }
+
 }

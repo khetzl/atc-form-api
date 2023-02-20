@@ -77,6 +77,7 @@ export type QuestionTextJSON = {
 export declare class QuestionText extends Question {
     constructor(index: number, questionText: string);
     toObject(): QuestionTextJSON;
+    static fromObject(json: QuestionTextJSON): QuestionText;
 }
 export type QuestionMatrixJSON = {
     index: number;
