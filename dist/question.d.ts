@@ -5,11 +5,11 @@ export declare enum QuestionType {
     Text = 3,
     Matrix = 4
 }
-type QMCChoice = {
+export type QMCChoice = {
     index: number;
     text: string;
 };
-type QMLine = {
+export type QMLine = {
     index: number;
     questionText: string;
 };

@@ -11,13 +11,13 @@ export enum QuestionType {
 
 
 // Multiple Choice question choice.
-type QMCChoice = {
+export type QMCChoice = {
     index: number,
     text: string,
 };
 
 // Matrix question line.
-type QMLine = {
+export type QMLine = {
     index: number,
     questionText: string,
 }
