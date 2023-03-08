@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.QuestionMatrix = exports.QuestionText = exports.QuestionMultipleChoice = exports.QuestionRating = exports.QuestionBinary = exports.Question = exports.QuestionType = void 0;
+require("reflect-metadata");
 const validation_1 = require("./validation");
 // FIXME: perhaps shared library
 const defaultRatingRange = 10;

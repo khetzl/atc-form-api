@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 export declare enum QuestionType {
     Binary = 0,
     Rating = 1,

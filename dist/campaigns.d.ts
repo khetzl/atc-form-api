@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Address } from './common';
 import { Form, FormJSON } from "./forms";
 export type CampaignSummary = {
@@ -31,7 +32,7 @@ export declare class Campaign {
     ownership: CampaignOwnership;
     createdBy: Address;
     ownerSpace?: string;
-    forms: Map<string, Form>;
+    forms: Form[];
     totalFunding: number;
     remainingFunding: number;
     isLive: boolean;
@@ -40,7 +41,7 @@ export declare class Campaign {
     updateFunding(totalFunding: number, remainingFunding: number): void;
     isOwned(caller: string): boolean;
     addForm(f: Form): void;
-    getForm(fId: string): Form | undefined;
+    getForm(formId: string): Form | undefined;
     deleteForm(fId: string): void;
     getAllForms(): Form[];
     toSummary(): CampaignSummary;

@@ -1,3 +1,6 @@
+import 'reflect-metadata';
+import { Type } from 'class-transformer';
+
 import { VErrorReason } from './validation';
 
 // FIXME: perhaps shared library
@@ -186,6 +189,7 @@ export type QuestionMultipleChoiceJSON = {
 
 export class QuestionMultipleChoice extends Question {
     isRandomOrder = false;
+
     choices: QMCChoice[] = [];
 
     constructor(index: number, questionText: string) {

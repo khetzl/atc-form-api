@@ -1,3 +1,6 @@
+import 'reflect-metadata';
+import { Type } from 'class-transformer';
+
 import {Address} from './common';
 import {Form, FormJSON} from "./forms";
 
@@ -36,7 +39,8 @@ export class Campaign {
     ownership: CampaignOwnership;
     createdBy: Address;
     ownerSpace?: string;
-    forms: Map<string, Form>;
+    @Type(type => Form)
+    forms: Form[];
     totalFunding = 0;
     remainingFunding = 0;
     isLive = false;
@@ -51,7 +55,7 @@ export class Campaign {
         this.description = desc;
         this.ownership = ownership;
         this.createdBy = createdBy;
-        this.forms = new Map<string, Form>();
+        this.forms = [];
     }
 
     setCampaignId(id: string) {
@@ -75,19 +79,24 @@ export class Campaign {
     }
 
     addForm(f: Form) {
-        this.forms.set(f.formId, f);
+        this.forms.push(f);
     }
 
-    getForm(fId: string) : Form | undefined {
-        return this.forms.get(fId);
+    getForm(formId: string) : Form | undefined {
+        this.forms.forEach((f: Form | undefined, i: number) => {
+            if (f!.formId == formId) {return f;}
+        });
+        return undefined;
     }
 
     deleteForm(fId: string) {
-        this.forms.delete(fId);
+        this.forms.forEach((f: Form | undefined, i: number) => {
+            delete this.forms[i];
+        });
     }
 
     getAllForms() : Form[] {
-        return Array.from(this.forms.values());
+        return this.forms;
     }
 
     toSummary() : CampaignSummary {
@@ -108,8 +117,8 @@ export class Campaign {
 
     toObject() : CampaignJSON {
         let formsJs: FormJSON[] = [];
-        if (this.forms) {
-            this.forms.forEach((f) => formsJs.push(f.toObject()));
+        if (this.forms && this.forms.length > 0) {
+            formsJs = this.getAllForms();
         }
 
         return ({
@@ -134,10 +143,10 @@ export class Campaign {
             json.createdBy,
         );
         if (json.forms) {
-            const fs = new Map<string, Form>();
+            const fs = new Array<Form>();
             json.forms.forEach((fObj) => {
                 const f = Form.fromObject(fObj);
-                fs.set(f.formId, f);
+                fs.push(f);
             });
             c.forms = fs;
         }

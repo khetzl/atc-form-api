@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Space = exports.CampaignOwnership = exports.Campaign = exports.Form = void 0;
+require("reflect-metadata");
 var forms_1 = require("./forms");
 Object.defineProperty(exports, "Form", { enumerable: true, get: function () { return forms_1.Form; } });
 var campaigns_1 = require("./campaigns");

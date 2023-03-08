@@ -1,6 +1,14 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Campaign = exports.CampaignOwnership = void 0;
+require("reflect-metadata");
+const class_transformer_1 = require("class-transformer");
 const forms_1 = require("./forms");
 var CampaignOwnership;
 (function (CampaignOwnership) {
@@ -18,7 +26,7 @@ class Campaign {
         this.description = desc;
         this.ownership = ownership;
         this.createdBy = createdBy;
-        this.forms = new Map();
+        this.forms = [];
     }
     setCampaignId(id) {
         this.campaignId = id;
@@ -38,16 +46,23 @@ class Campaign {
         }
     }
     addForm(f) {
-        this.forms.set(f.formId, f);
+        this.forms.push(f);
     }
-    getForm(fId) {
-        return this.forms.get(fId);
+    getForm(formId) {
+        this.forms.forEach((f, i) => {
+            if (f.formId == formId) {
+                return f;
+            }
+        });
+        return undefined;
     }
     deleteForm(fId) {
-        this.forms.delete(fId);
+        this.forms.forEach((f, i) => {
+            delete this.forms[i];
+        });
     }
     getAllForms() {
-        return Array.from(this.forms.values());
+        return this.forms;
     }
     toSummary() {
         return {
@@ -65,8 +80,8 @@ class Campaign {
     }
     toObject() {
         let formsJs = [];
-        if (this.forms) {
-            this.forms.forEach((f) => formsJs.push(f.toObject()));
+        if (this.forms && this.forms.length > 0) {
+            formsJs = this.getAllForms();
         }
         return ({
             campaignId: this.campaignId,
@@ -85,10 +100,10 @@ class Campaign {
         const c = new Campaign(json.name, json.description, CampaignOwnership.Address, //json.ownership: CampaignOwnership, // FIXME:
         json.createdBy);
         if (json.forms) {
-            const fs = new Map();
+            const fs = new Array();
             json.forms.forEach((fObj) => {
                 const f = forms_1.Form.fromObject(fObj);
-                fs.set(f.formId, f);
+                fs.push(f);
             });
             c.forms = fs;
         }
@@ -111,4 +126,7 @@ class Campaign {
         return c;
     }
 }
+__decorate([
+    (0, class_transformer_1.Type)(type => forms_1.Form)
+], Campaign.prototype, "forms", void 0);
 exports.Campaign = Campaign;

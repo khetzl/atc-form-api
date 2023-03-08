@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Question, QuestionJSON } from './question';
 import { ValidationResult } from './validation';
 export type FormSummary = {
