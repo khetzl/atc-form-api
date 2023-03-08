@@ -42,7 +42,7 @@ export declare class Campaign {
     isOwned(caller: string): boolean;
     addForm(f: Form): void;
     getForm(formId: string): Form | undefined;
-    deleteForm(fId: string): void;
+    deleteForm(formId: string): void;
     getAllForms(): Form[];
     toSummary(): CampaignSummary;
     toSummaryWithFormId(formId: number): CampaignSummary;

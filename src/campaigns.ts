@@ -83,16 +83,12 @@ export class Campaign {
     }
 
     getForm(formId: string) : Form | undefined {
-        this.forms.forEach((f: Form | undefined, i: number) => {
-            if (f!.formId == formId) {return f;}
-        });
-        return undefined;
+        return this.forms.find(f => f.formId === formId);
     }
 
-    deleteForm(fId: string) {
-        this.forms.forEach((f: Form | undefined, i: number) => {
-            delete this.forms[i];
-        });
+    deleteForm(formId: string) {
+        const i = this.forms.findIndex(f => f.formId === formId);
+        if (i >= 0) { delete this.forms[i]; }
     }
 
     getAllForms() : Form[] {

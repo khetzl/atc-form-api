@@ -30,6 +30,43 @@ describe("Campaign Actions", () => {
         });
 });
 
+describe("Add/Get/Delete Forms", () => {
+    it("Campaign has no Forms", () => {
+        const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        expect(c.getForm("any id")).to.be.undefined;
+    });
+    it("Campaign has a single Form", () => {
+        const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        const f = new Form("2", "internal", "a single form");
+        f.addRating("rate the test!");
+        c.addForm(f);
+        expect(c.getForm("not in campaign")).to.be.undefined; // its id is "2"
+        expect(c.getForm("2")).to.deep.equal(f);
+
+        c.deleteForm("not in campaign");
+        expect(c.getForm("2")).to.deep.equal(f);
+
+        c.deleteForm("2");
+        expect(c.getForm("2")).to.be.undefined;
+    });
+    it("Campaign has a multiple Form", () => {
+        const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        const f = new Form("2", "internal", "a single form");
+        f.addRating("rate the test!");
+        c.addForm(f);
+        expect(c.getForm("not in campaign")).to.be.undefined; // its id is "2"
+        expect(c.getForm("2")).to.deep.equal(f);
+
+        c.deleteForm("not in campaign");
+        expect(c.getForm("2")).to.deep.equal(f);
+
+        c.deleteForm("2");
+        expect(c.getForm("2")).to.be.undefined;
+    });
+    
+});
+
+
 describe("Campaign Conversion", () => {
     it("toObjectJSON", () => {
         const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");

@@ -49,17 +49,13 @@ class Campaign {
         this.forms.push(f);
     }
     getForm(formId) {
-        this.forms.forEach((f, i) => {
-            if (f.formId == formId) {
-                return f;
-            }
-        });
-        return undefined;
+        return this.forms.find(f => f.formId === formId);
     }
-    deleteForm(fId) {
-        this.forms.forEach((f, i) => {
+    deleteForm(formId) {
+        const i = this.forms.findIndex(f => f.formId === formId);
+        if (i >= 0) {
             delete this.forms[i];
-        });
+        }
     }
     getAllForms() {
         return this.forms;
