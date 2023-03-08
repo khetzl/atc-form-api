@@ -86,7 +86,7 @@ class Form {
     }
 }
 __decorate([
-    (0, class_transformer_1.Type)(() => question_1.Question)
+    (0, class_transformer_1.Type)(type => question_1.Question)
 ], Form.prototype, "questions", void 0);
 exports.Form = Form;
 ;

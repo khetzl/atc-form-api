@@ -21,7 +21,7 @@ export class Form  {
     formId: string;
     formText: string;
     internalName: string;
-    @Type(() => Question)
+    @Type(type => Question)
     questions: Question[];
 
     constructor(formId: string, internalName: string, text: string) {
