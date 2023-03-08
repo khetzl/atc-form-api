@@ -108,7 +108,9 @@ export class Campaign {
 
     toObject() : CampaignJSON {
         let formsJs: FormJSON[] = [];
-        this.forms.forEach((f) => formsJs.push(f.toObject()));
+        if (this.forms) {
+            this.forms.forEach((f) => formsJs.push(f.toObject()));
+        }
 
         return ({
             campaignId: this.campaignId,

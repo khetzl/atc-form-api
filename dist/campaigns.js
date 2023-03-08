@@ -65,7 +65,9 @@ class Campaign {
     }
     toObject() {
         let formsJs = [];
-        this.forms.forEach((f) => formsJs.push(f.toObject()));
+        if (this.forms) {
+            this.forms.forEach((f) => formsJs.push(f.toObject()));
+        }
         return ({
             campaignId: this.campaignId,
             name: this.name,

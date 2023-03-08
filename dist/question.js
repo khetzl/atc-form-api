@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.QuestionMatrix = exports.QuestionText = exports.QuestionMultipleChoice = exports.QuestionRating = exports.QuestionBinary = exports.Question = exports.QuestionType = void 0;
 const validation_1 = require("./validation");
+// FIXME: perhaps shared library
+const defaultRatingRange = 10;
 // FIXME: into shared library
 var QuestionType;
 (function (QuestionType) {
@@ -91,7 +93,7 @@ exports.QuestionBinary = QuestionBinary;
 class QuestionRating extends Question {
     constructor(index, questionText) {
         super(index, QuestionType.Rating, questionText);
-        this.range = 10;
+        this.range = defaultRatingRange;
     }
     isValidResponse(v) {
         // If a question gets updated when a user updates it, this might give weird results.
@@ -107,7 +109,7 @@ class QuestionRating extends Question {
             throw new Error(validation_1.VErrorReason.UnexpectedType);
         }
     }
-    setCustomRange(n) { this.range = n; }
+    setCustomRange(n) { this.range = defaultRatingRange; }
     toObject() {
         return ({
             index: this.index,
@@ -118,6 +120,8 @@ class QuestionRating extends Question {
     }
     static fromObject(json) {
         const q = new QuestionRating(json.index, json.questionText);
+        // FIXME: this is likely to crash
+        q.range = json.range || defaultRatingRange;
         return q;
     }
 }

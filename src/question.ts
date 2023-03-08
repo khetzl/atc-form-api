@@ -1,5 +1,8 @@
 import { VErrorReason } from './validation';
 
+// FIXME: perhaps shared library
+const defaultRatingRange = 10;
+
 // FIXME: into shared library
 export enum QuestionType {
     Binary,
@@ -133,10 +136,11 @@ export type QuestionRatingJSON = {
 };
 
 export class QuestionRating extends Question {
-    range = 10;
+    range: number;
 
     constructor(index: number, questionText: string) {
         super(index, QuestionType.Rating, questionText);
+        this.range = defaultRatingRange;
     }
 
     isValidResponse(v: ResponseValueType) {
@@ -152,7 +156,7 @@ export class QuestionRating extends Question {
         }
     }
     
-    setCustomRange(n: number) : void { this.range = n }
+    setCustomRange(n: number) : void { this.range = defaultRatingRange }
 
     toObject() : QuestionRatingJSON {
         return ({
@@ -165,6 +169,10 @@ export class QuestionRating extends Question {
     
     static fromObject(json: QuestionRatingJSON) : QuestionRating {
         const q = new QuestionRating(json.index, json.questionText);
+        // FIXME: this is likely to crash
+        
+        q.range = json.range || defaultRatingRange;
+        
         return q;
     }
 }
