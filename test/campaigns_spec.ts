@@ -1,69 +1,113 @@
 import "mocha";
 import { expect } from "chai";
 
-import {Campaign, CampaignOwnership} from '../src/campaigns';
+import {Campaign, CampaignOwnership, RemovedActiveForm} from '../src/campaigns';
 import {Form} from '../src/forms';
 
-describe("Campaign Actions", () => {
-    it("Summary", () =>
-        {
-            const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
-            c.setCampaignId("1");
-            c.updateFunding(321, 123);
-            expect(c.toSummary()).to.deep.equal(
-                {
-                    campaignId: "1",
-                    title: "name",
-                    description: "desc",
-                    totalFunding: 321,
-                    remainingFunding: 123
-                });
-            expect(c.toSummaryWithFormId(44)).to.deep.equal(
-                {
-                    campaignId: "1",
-                    title: "name",
-                    description: "desc",
-                    totalFunding: 321,
-                    remainingFunding: 123,
-                    formId: 44
-                });
-        });
-});
-
-describe("Add/Get/Delete Forms", () => {
+describe("Campaign - Add/Get Forms", () => {
     it("Campaign has no Forms", () => {
         const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
         expect(c.getForm("any id")).to.be.undefined;
     });
     it("Campaign has a single Form", () => {
         const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
-        const f = new Form("2", "internal", "a single form");
+        const f = new Form("2");
         f.addRating("rate the test!");
         c.addForm(f);
         expect(c.getForm("not in campaign")).to.be.undefined; // its id is "2"
         expect(c.getForm("2")).to.deep.equal(f);
-
-        c.deleteForm("not in campaign");
-        expect(c.getForm("2")).to.deep.equal(f);
-
-        c.deleteForm("2");
-        expect(c.getForm("2")).to.be.undefined;
     });
     it("Campaign has a multiple Form", () => {
         const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
-        const f = new Form("2", "internal", "a single form");
+        const f = new Form("2");
         f.addRating("rate the test!");
         c.addForm(f);
         expect(c.getForm("not in campaign")).to.be.undefined; // its id is "2"
         expect(c.getForm("2")).to.deep.equal(f);
-
-        c.deleteForm("not in campaign");
-        expect(c.getForm("2")).to.deep.equal(f);
-
-        c.deleteForm("2");
-        expect(c.getForm("2")).to.be.undefined;
     });
-    
+
+});
+
+describe("Campaign Detect update", () => {
+    it("Minimal self, indentical, b2b conversion, different id", () => {
+        const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        expect(c.updateIfChanged(c)).to.equal(false);
+        const c1 = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        expect(c.updateIfChanged(c1)).to.equal(false);
+        const c2 = new Campaign("name2", "desc", CampaignOwnership.Address, "0x");
+        expect(c.updateIfChanged(c2)).to.equal(true);
+        // c has been updated here
+        expect(c.updateIfChanged(c2)).to.equal(false);
+
+        const c0 = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        const b2b = Campaign.fromObject(c0.toObject());
+        expect(c0.updateIfChanged(b2b)).to.equal(false);
+        const b2b2 = Campaign.fromObject(c2.toObject());
+        expect(c0.updateIfChanged(b2b2)).to.equal(true);
+    });
+
+    it("Campaign with simple Form", () => {
+        const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        const f = new Form("form1");
+        c.addForm(f);
+        expect(c.updateIfChanged(c)).to.equal(false);
+        const c1 = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        c1.addForm(f);
+        expect(c.updateIfChanged(c1)).to.equal(false);
+
+        const c2 = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        const f2 = new Form("form2");
+        c2.addForm(f2);
+        expect(c.updateIfChanged(c2)).to.equal(true);
+    });
+
+    it("Campaign with simple Form with questions", () => {
+        const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        const f = new Form("form1");
+        f.addBinary("binary1");
+        c.addForm(f);
+        expect(c.updateIfChanged(c)).to.equal(false);
+
+        const c1 = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        const f1 = new Form("form1");
+        f1.addBinary("binary1");
+        c1.addForm(f1);
+
+        const b2b = Campaign.fromObject(c1.toObject());
+        expect(c.updateIfChanged(b2b)).to.equal(false);
+
+        const c2 = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        const f2 = new Form("form1");
+        f2.addBinary("binary2");
+        c2.addForm(f2);
+
+        const b2b2 = Campaign.fromObject(c2.toObject());
+        expect(c.updateIfChanged(b2b2)).to.equal(true);
+    });
+
+    it("Campaign with form and a campaign without", () => {
+        const c1 = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        const f1 = new Form("form1");
+        c1.addForm(f1);
+
+        const c2 = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+
+        expect(() => c1.updateIfChanged(c2)).to.throw(RemovedActiveForm);
+        expect(c2.updateIfChanged(c1)).to.equal(true);
+    });
+
+    it("Campaigns with forms, one with questions one without", () => {
+        const c1 = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        const f1 = new Form("form1");
+        f1.addBinary("binary1");
+        c1.addForm(f1);
+
+        const c2 = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        const f2 = new Form("form1");
+        c2.addForm(f2);
+
+        expect(c1.updateIfChanged(c2)).to.equal(true);
+    });
 });
 
 
@@ -76,16 +120,14 @@ describe("Campaign Conversion", () => {
             name: "name",
             description: "desc",
             createdBy: "0x",
-            remainingFunding: 0,
-            totalFunding: 0,
-            forms: [],
+            form: undefined,
             isLive: false,
             ownerSpace: undefined,
         });
     });
 
     it("toObjectJSON With Form", () => {
-        const f = new Form("stuff", "stuff", "stuff");
+        const f = new Form("stuff");
         const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
         c.addForm(f);
         c.setCampaignId("1");
@@ -94,13 +136,8 @@ describe("Campaign Conversion", () => {
             name: "name",
             description: "desc",
             createdBy: "0x",
-            remainingFunding: 0,
-            totalFunding: 0,
-            forms: [{
-                formId: "stuff",
-                formText: "stuff",
-                internalName: "stuff",
-                questions: [] }],
+            form: {formId: "stuff",
+                   questions: []},
             isLive: false,
             ownerSpace: undefined,
         });
@@ -109,8 +146,7 @@ describe("Campaign Conversion", () => {
     it("fromObject - Minimal", () => {
         const obj = {name: "name",
                      description: "desc",
-                     createdBy: "0x",
-                     forms: []};
+                     createdBy: "0x"};
         const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
         expect(Campaign.fromObject(obj)).to.deep.equal(c);
     });
@@ -118,12 +154,10 @@ describe("Campaign Conversion", () => {
         const obj = {name: "name",
                      description: "desc",
                      createdBy: "0x",
-                     forms: [{
+                     form: {
                          formId: "stuff",
-                         formText: "stuff",
-                         internalName: "stuff",
-                         questions: [] }]};
-        const f = new Form("stuff", "stuff", "stuff");
+                         questions: [] }};
+        const f = new Form("stuff");
         const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
         c.addForm(f);
         expect(Campaign.fromObject(obj)).to.deep.equal(c);
@@ -135,7 +169,7 @@ describe("Campaign Conversion", () => {
         expect(Campaign.fromObject(c.toObject())).to.deep.equal(c);
     });
     it("JSON bijection - With Form - Campaign>JSON>Campaign", () => {
-        const f = new Form("stuff", "stuff", "stuff");
+        const f = new Form("stuff");
         const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
         c.addForm(f);
         expect(Campaign.fromObject(c.toObject())).to.deep.equal(c);

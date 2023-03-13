@@ -25,6 +25,7 @@ export declare class Question {
     constructor(index: number, questionType: QuestionType, questionText: string);
     isValidResponse(v: ResponseValueType): void;
     toObject(): QuestionJSON;
+    isChanged(q: Question): boolean;
     static fromObject(json: QuestionJSON): Question;
 }
 export type QuestionBinaryJSON = {

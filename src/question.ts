@@ -59,6 +59,12 @@ export class Question {
         });
     }
 
+    isChanged(q: Question) : boolean {
+        return this.index !== q.index ||
+            this.questionType !== q.questionType ||
+            this.questionText !== q.questionText;
+    }
+
     static fromObject(json: QuestionJSON) : Question {
         // FIXME: This seems to be pretty labour-intensive
         switch (json.questionType) {

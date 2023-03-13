@@ -32,6 +32,11 @@ class Question {
             questionText: this.questionText,
         });
     }
+    isChanged(q) {
+        return this.index !== q.index ||
+            this.questionType !== q.questionType ||
+            this.questionText !== q.questionText;
+    }
     static fromObject(json) {
         // FIXME: This seems to be pretty labour-intensive
         switch (json.questionType) {

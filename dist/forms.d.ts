@@ -1,30 +1,20 @@
 import 'reflect-metadata';
 import { Question, QuestionJSON } from './question';
 import { ValidationResult } from './validation';
-export type FormSummary = {
-    formId: string;
-    internalName: string;
-    formText: string;
-};
 export type FormJSON = {
     formId: string;
-    internalName: string;
-    formText: string;
     questions: QuestionJSON[];
 };
 export declare class Form {
     formId: string;
-    formText: string;
-    internalName: string;
     questions: Question[];
-    constructor(formId: string, internalName: string, text: string);
-    setText(formText: string): void;
+    constructor(formId: string);
     addBinary(text: string): void;
     addBinaryCustom(text: string, choiceA: string, choiceB: string): void;
     addRating(text: string): void;
     addText(text: string): void;
-    toSummary(): FormSummary;
     toObject(): FormJSON;
+    isChanged(f: Form): boolean;
     static fromObject(json: FormJSON): Form;
     validateResponse(r: Map<number, any>): ValidationResult;
 }

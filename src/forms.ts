@@ -4,35 +4,19 @@ import { Type } from 'class-transformer';
 import {Question, QuestionBinary, QuestionRating, QuestionText, QuestionJSON} from './question';
 import {ValidationSuccess, ValidationError, ValidationResult, VErrorReason} from './validation';
 
-export type FormSummary = {
-    formId: string,
-    internalName: string,
-    formText: string,
-}
-
 export type FormJSON = {
     formId: string,
-    internalName: string,
-    formText: string,
     questions: QuestionJSON[],
 }
 
 export class Form  {
     formId: string;
-    formText: string;
-    internalName: string;
     @Type(type => Question)
     questions: Question[];
 
-    constructor(formId: string, internalName: string, text: string) {
+    constructor(formId: string) {
         this.formId = formId;
-        this.formText = text;
-        this.internalName = internalName;
         this.questions = [];
-    }
-
-    setText(formText: string) : void {
-        this.formText = formText;
     }
 
     addBinary(text: string) : void {
@@ -56,27 +40,28 @@ export class Form  {
         this.questions.push(q);
     }
 
-    toSummary() : FormSummary {
-        return {
-            formId: this.formId,
-            formText: this.formText,
-            internalName: this.internalName,
-        }
-    }
-
     toObject() : FormJSON {
         const qs: QuestionJSON[] = [];
         this.questions.forEach((q,i) => {qs.push(q.toObject())});
         return ({
             formId: this.formId,
-            formText: this.formText,
-            internalName: this.internalName,
             questions: qs,
         });
     }
 
+    isChanged(f: Form) : boolean {
+        return this.formId !== f.formId ||
+            this.questions.some((q: Question, i: number) => {
+                if (f.questions.length > i) {
+                    return q.isChanged(f.questions[i]);
+                } else {
+                    return true;
+                }
+            });
+    }
+
     static fromObject(json: FormJSON) : Form {
-        const f = new Form(json.formId, json.internalName, json.formText);
+        const f = new Form(json.formId);
         json.questions.forEach((q,i) => {f.questions.push(Question.fromObject(q))});
         return f;
     }

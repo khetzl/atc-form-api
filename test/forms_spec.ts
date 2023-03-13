@@ -6,21 +6,9 @@ import { QuestionType, QuestionBinary } from '../src/question';
 import {isSuccess, ValidationError} from '../src/validation';
 
 describe("Form Actions", () => {
-    it("New should be empty, and have basics set up", () =>
-        {
-            const f = new Form("1", "internalName", "test");
-            expect(f.formId).to.eq("1");
-            expect(f.formText).to.eq("test");
-            expect(f.questions).to.eql([]);
-            expect(f.toSummary()).to.deep.equal(
-                { formId: "1",
-                  formText: "test",
-                  internalName: "internalName",
-                });
-        });
     it("Adding questions", () =>
         {
-            const f = new Form("1", "internalName", "test");
+            const f = new Form("1");
             expect(f.questions).to.eql([]);
 
             f.addBinary("binary1");
@@ -33,11 +21,11 @@ describe("Form Actions", () => {
 
 describe("Form Conversion", () => {
     it("Conversion bijection - Minimal - Form>JSON>Form", () => {
-        const f = new Form("1", "internalName", "test");
+        const f = new Form("1");
         expect(Form.fromObject(f.toObject())).to.deep.equal(f);
     });
     it("Conversion bijection - With Questions - Form>JSON>Form", () => {
-        const f = new Form("1", "internalName", "test");
+        const f = new Form("1");
         f.addBinary("Binary question?");
         f.addRating("Rate it!");
         f.addText("write something!");
@@ -47,11 +35,9 @@ describe("Form Conversion", () => {
     it("Conversion, breaking example", () => {
         const json = {
             formId: '1',
-                      formText: 'Heartbeat Demo',
-                      internalName: 'internal',
-                      questions: [
-                          {index: 0,
-                           questionType: 0,
+            questions: [
+                {index: 0,
+                 questionType: 0,
                            questionText: 'How do you feel today?',
                            customChoiceA: 'Well',
                            customChoiceB: 'Bad'},
@@ -84,12 +70,12 @@ describe("Form Conversion", () => {
 
 describe("Validate Form Response", () => {
     it("Empty", () => {
-        const f = new Form("1", "internalName", "test");
+        const f = new Form("1");
         const r0 = new Map<number,any>([]);
         expect(isSuccess(f.validateResponse(r0))).to.be.true;
     });
     it("Single validation - binary", () => {
-        const f = new Form("1", "internalName", "test");
+        const f = new Form("1");
         f.addBinary("b");
 
         const r0 = new Map<number,any>([[0, 0]]);
@@ -119,7 +105,7 @@ describe("Validate Form Response", () => {
     });
 
     it("Multiple validations #1 - First demo with sample results", () => {
-        const f = new Form("1", "internalName", "Heartbeat Demo");
+        const f = new Form("1");
         f.addBinaryCustom("How do you feel today?", "Well", "Bad");
         f.addRating("Rate Something!");
         f.addBinary("default");

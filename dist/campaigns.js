@@ -6,10 +6,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Campaign = exports.CampaignOwnership = void 0;
+exports.Campaign = exports.CampaignOwnership = exports.RemovedActiveForm = exports.CampaignIdMismatch = void 0;
 require("reflect-metadata");
 const class_transformer_1 = require("class-transformer");
 const forms_1 = require("./forms");
+exports.CampaignIdMismatch = "campaignId mismatch";
+exports.RemovedActiveForm = "update removed active form";
 var CampaignOwnership;
 (function (CampaignOwnership) {
     CampaignOwnership[CampaignOwnership["Address"] = 0] = "Address";
@@ -18,22 +20,16 @@ var CampaignOwnership;
 ;
 class Campaign {
     constructor(name, desc, ownership, createdBy) {
-        this.totalFunding = 0;
-        this.remainingFunding = 0;
         this.isLive = false;
         this.name = name;
         this.publicTitle = name;
         this.description = desc;
         this.ownership = ownership;
         this.createdBy = createdBy;
-        this.forms = [];
+        this.historicForms = [];
     }
     setCampaignId(id) {
         this.campaignId = id;
-    }
-    updateFunding(totalFunding, remainingFunding) {
-        this.totalFunding = totalFunding;
-        this.remainingFunding = remainingFunding;
     }
     isOwned(caller) {
         switch (this.ownership) {
@@ -46,64 +42,90 @@ class Campaign {
         }
     }
     addForm(f) {
-        this.forms.push(f);
+        if (this.activeForm) {
+            this.historicForms.push(this.activeForm);
+        }
+        this.activeForm = f;
+    }
+    getActiveForm() {
+        return this.activeForm;
     }
     getForm(formId) {
-        return this.forms.find(f => f.formId === formId);
-    }
-    deleteForm(formId) {
-        const i = this.forms.findIndex(f => f.formId === formId);
-        if (i >= 0) {
-            delete this.forms[i];
+        if (this.activeForm && this.activeForm.formId === formId) {
+            return this.activeForm;
         }
-    }
-    getAllForms() {
-        return this.forms;
+        else {
+            return this.historicForms.find(f => f.formId === formId);
+        }
     }
     toSummary() {
         return {
             campaignId: this.campaignId,
             title: this.publicTitle,
             description: this.description,
-            totalFunding: this.totalFunding,
-            remainingFunding: this.remainingFunding,
+            formId: this.activeForm ? this.activeForm.formId : undefined,
         };
     }
-    toSummaryWithFormId(formId) {
-        const summary = this.toSummary();
-        summary.formId = formId;
-        return summary;
-    }
     toObject() {
-        let formsJs = [];
-        if (this.forms && this.forms.length > 0) {
-            formsJs = this.getAllForms();
-        }
         return ({
             campaignId: this.campaignId,
             name: this.name,
             description: this.description,
             createdBy: this.createdBy,
             ownerSpace: this.ownerSpace,
-            forms: formsJs,
-            totalFunding: this.totalFunding,
-            remainingFunding: this.remainingFunding,
+            form: this.activeForm,
             isLive: this.isLive,
         });
     }
-    // FIXME: this should be the constructor
+    isBasicChanged(c) {
+        return this.name !== c.name ||
+            this.publicTitle !== c.publicTitle ||
+            this.description !== c.description ||
+            this.ownership !== c.ownership ||
+            this.createdBy !== c.createdBy ||
+            this.ownerSpace !== c.ownerSpace ||
+            this.isLive !== c.isLive;
+    }
+    // Only works with fromObject output
+    updateIfChanged(update) {
+        let hasChanged = false;
+        if (this.campaignId !== update.campaignId) {
+            // Once a form was set, it can't be deleted, only updated.
+            throw (new Error(exports.CampaignIdMismatch));
+        }
+        const reduced = Campaign.fromObject(this.toObject());
+        if (reduced.isBasicChanged(update)) {
+            this.name = update.name;
+            this.publicTitle = update.publicTitle;
+            this.description = update.description;
+            this.ownership = update.ownership;
+            this.createdBy = update.createdBy;
+            this.ownerSpace = update.ownerSpace;
+            this.activeForm = update.activeForm;
+            this.isLive = update.isLive;
+            hasChanged = true;
+        }
+        if (!reduced.activeForm) {
+            hasChanged = hasChanged || (update.activeForm !== undefined);
+        }
+        else {
+            if (!update.activeForm) {
+                throw (new Error(exports.RemovedActiveForm));
+            }
+            if (reduced.activeForm.isChanged(update.activeForm)) {
+                this.addForm(update.activeForm);
+                hasChanged = true;
+            }
+        }
+        return hasChanged;
+    }
     static fromObject(json) {
         const c = new Campaign(json.name, json.description, CampaignOwnership.Address, //json.ownership: CampaignOwnership, // FIXME:
         json.createdBy);
-        if (json.forms) {
-            const fs = new Array();
-            json.forms.forEach((fObj) => {
-                const f = forms_1.Form.fromObject(fObj);
-                fs.push(f);
-            });
-            c.forms = fs;
-        }
         // TODO: add other details..
+        if (json.form) {
+            c.activeForm = forms_1.Form.fromObject(json.form);
+        }
         if (json.campaignId) {
             c.campaignId = json.campaignId;
         }
@@ -113,16 +135,10 @@ class Campaign {
         if (json.isLive) {
             c.isLive = json.isLive;
         }
-        if (json.totalFunding) {
-            c.totalFunding = json.totalFunding;
-        }
-        if (json.remainingFunding) {
-            c.remainingFunding = json.remainingFunding;
-        }
         return c;
     }
 }
 __decorate([
     (0, class_transformer_1.Type)(type => forms_1.Form)
-], Campaign.prototype, "forms", void 0);
+], Campaign.prototype, "historicForms", void 0);
 exports.Campaign = Campaign;

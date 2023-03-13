@@ -12,14 +12,9 @@ const class_transformer_1 = require("class-transformer");
 const question_1 = require("./question");
 const validation_1 = require("./validation");
 class Form {
-    constructor(formId, internalName, text) {
+    constructor(formId) {
         this.formId = formId;
-        this.formText = text;
-        this.internalName = internalName;
         this.questions = [];
-    }
-    setText(formText) {
-        this.formText = formText;
     }
     addBinary(text) {
         const q = new question_1.QuestionBinary(this.questions.length, text);
@@ -38,25 +33,27 @@ class Form {
         const q = new question_1.QuestionText(this.questions.length, text);
         this.questions.push(q);
     }
-    toSummary() {
-        return {
-            formId: this.formId,
-            formText: this.formText,
-            internalName: this.internalName,
-        };
-    }
     toObject() {
         const qs = [];
         this.questions.forEach((q, i) => { qs.push(q.toObject()); });
         return ({
             formId: this.formId,
-            formText: this.formText,
-            internalName: this.internalName,
             questions: qs,
         });
     }
+    isChanged(f) {
+        return this.formId !== f.formId ||
+            this.questions.some((q, i) => {
+                if (f.questions.length > i) {
+                    return q.isChanged(f.questions[i]);
+                }
+                else {
+                    return true;
+                }
+            });
+    }
     static fromObject(json) {
-        const f = new Form(json.formId, json.internalName, json.formText);
+        const f = new Form(json.formId);
         json.questions.forEach((q, i) => { f.questions.push(question_1.Question.fromObject(q)); });
         return f;
     }

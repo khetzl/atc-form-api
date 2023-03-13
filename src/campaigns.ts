@@ -4,31 +4,30 @@ import { Type } from 'class-transformer';
 import {Address} from './common';
 import {Form, FormJSON} from "./forms";
 
-export type CampaignSummary = {
-    campaignId?: string,
-    title: string,
-    description: string,
-    totalFunding: number,
-    remainingFunding: number,
-    formId?: number,
-};
-
-// Not the most fortunate naming...
-export type CampaignJSON = {
-        campaignId?: string,
-        name: string,
-        description: string,
-        createdBy: string,
-        ownerSpace?: string,
-        forms: FormJSON[],
-        totalFunding?: number,
-        remainingFunding?: number,
-        isLive?: boolean,
-};
+export const CampaignIdMismatch = "campaignId mismatch";
+export const RemovedActiveForm = "update removed active form";
 
 export enum CampaignOwnership {
     Address,
     Space,
+};
+
+export type CampaignSummary = {
+    campaignId?: string,
+    title: string,
+    description: string,
+    formId?: string,
+};
+
+// Not the most fortunate naming...
+export type CampaignJSON = {
+    campaignId?: string,
+    name: string,
+    description: string,
+    createdBy: string,
+    ownerSpace?: string,
+    form?: FormJSON,
+    isLive?: boolean,
 };
 
 export class Campaign {
@@ -39,32 +38,27 @@ export class Campaign {
     ownership: CampaignOwnership;
     createdBy: Address;
     ownerSpace?: string;
+    activeForm?: Form;
     @Type(type => Form)
-    forms: Form[];
-    totalFunding = 0;
-    remainingFunding = 0;
+    historicForms: Form[];
     isLive = false;
 
-    constructor(name: string,
-                desc: string,
-                ownership: CampaignOwnership,
-                createdBy: Address,
+    constructor(
+        name: string,
+        desc: string,
+        ownership: CampaignOwnership,
+        createdBy: Address,
                ) {
         this.name = name;
         this.publicTitle = name;
         this.description = desc;
         this.ownership = ownership;
         this.createdBy = createdBy;
-        this.forms = [];
+        this.historicForms = [];
     }
 
     setCampaignId(id: string) {
         this.campaignId = id;
-    }
-
-    updateFunding(totalFunding: number, remainingFunding: number) {
-        this.totalFunding = totalFunding;
-        this.remainingFunding = remainingFunding;
     }
 
     isOwned(caller: string) : boolean {
@@ -79,20 +73,20 @@ export class Campaign {
     }
 
     addForm(f: Form) {
-        this.forms.push(f);
+        if (this.activeForm) { this.historicForms.push(this.activeForm); }
+        this.activeForm = f;
+    }
+
+    getActiveForm() : Form | undefined {
+        return this.activeForm;
     }
 
     getForm(formId: string) : Form | undefined {
-        return this.forms.find(f => f.formId === formId);
-    }
-
-    deleteForm(formId: string) {
-        const i = this.forms.findIndex(f => f.formId === formId);
-        if (i >= 0) { delete this.forms[i]; }
-    }
-
-    getAllForms() : Form[] {
-        return this.forms;
+        if (this.activeForm && this.activeForm.formId === formId) {
+            return this.activeForm;
+        } else {
+            return this.historicForms.find(f => f.formId === formId);
+        }
     }
 
     toSummary() : CampaignSummary {
@@ -100,37 +94,67 @@ export class Campaign {
             campaignId: this.campaignId,
             title: this.publicTitle,
             description: this.description,
-            totalFunding: this.totalFunding,
-            remainingFunding: this.remainingFunding,
+            formId: this.activeForm ? this.activeForm.formId : undefined,
         };
     }
 
-    toSummaryWithFormId(formId: number) {
-        const summary = this.toSummary();
-        summary.formId = formId;
-        return summary;
-    }
-
     toObject() : CampaignJSON {
-        let formsJs: FormJSON[] = [];
-        if (this.forms && this.forms.length > 0) {
-            formsJs = this.getAllForms();
-        }
-
         return ({
             campaignId: this.campaignId,
             name: this.name,
             description: this.description,
             createdBy: this.createdBy,
             ownerSpace: this.ownerSpace,
-            forms: formsJs,
-            totalFunding: this.totalFunding,
-            remainingFunding: this.remainingFunding,
+            form: this.activeForm,
             isLive: this.isLive,
         });
     }
 
-    // FIXME: this should be the constructor
+    private isBasicChanged(c: Campaign) : boolean {
+        return this.name !== c.name ||
+            this.publicTitle !== c.publicTitle ||
+            this.description !== c.description ||
+            this.ownership !== c.ownership ||
+            this.createdBy !== c.createdBy ||
+            this.ownerSpace !== c.ownerSpace ||
+            this.isLive !== c.isLive;
+    }
+
+
+    // Only works with fromObject output
+    updateIfChanged(update: Campaign) : boolean {
+        let hasChanged = false;
+        if (this.campaignId !== update.campaignId) {
+            // Once a form was set, it can't be deleted, only updated.
+            throw(new Error(CampaignIdMismatch));
+        }
+        const reduced = Campaign.fromObject(this.toObject());
+
+        if (reduced.isBasicChanged(update)) {
+            this.name = update.name;
+            this.publicTitle = update.publicTitle;
+            this.description = update.description;
+            this.ownership = update.ownership;
+            this.createdBy = update.createdBy;
+            this.ownerSpace = update.ownerSpace;
+            this.activeForm = update.activeForm;
+            this.isLive = update.isLive;
+            hasChanged = true;
+        }
+
+        if (!reduced.activeForm) {
+            hasChanged = hasChanged || (update.activeForm !== undefined);
+        } else {
+            if (!update.activeForm) { throw(new Error(RemovedActiveForm)); }
+
+            if (reduced.activeForm!.isChanged(update.activeForm!)) {
+                this.addForm(update.activeForm);
+                hasChanged = true;
+            }
+        }
+        return hasChanged;
+    }
+
     static fromObject(json : CampaignJSON) : Campaign {
         const c = new Campaign(
             json.name,
@@ -138,21 +162,13 @@ export class Campaign {
             CampaignOwnership.Address, //json.ownership: CampaignOwnership, // FIXME:
             json.createdBy,
         );
-        if (json.forms) {
-            const fs = new Array<Form>();
-            json.forms.forEach((fObj) => {
-                const f = Form.fromObject(fObj);
-                fs.push(f);
-            });
-            c.forms = fs;
-        }
         // TODO: add other details..
+        if (json.form) {
+            c.activeForm = Form.fromObject(json.form);
+        }
         if (json.campaignId) { c.campaignId = json.campaignId; }
         if (json.ownerSpace) { c.ownerSpace = json.ownerSpace; }
         if (json.isLive) { c.isLive = json.isLive; }
-        if (json.totalFunding) { c.totalFunding = json.totalFunding; }
-        if (json.remainingFunding) { c.remainingFunding = json.remainingFunding; }
         return c;
     }
 }
-
