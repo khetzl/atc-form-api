@@ -12,6 +12,12 @@ export enum CampaignOwnership {
     Space,
 };
 
+export enum CampaignAccess {
+    Public,  // Anyone can answer
+    LinkOnly, // UI won't refer user to this
+    Whitelist, // Only specific users can fill it in even if others qualify
+};
+
 export type CampaignSummary = {
     campaignId?: string,
     title: string,
@@ -25,6 +31,7 @@ export type CampaignJSON = {
     name: string,
     description: string,
     createdBy: string,
+    access: CampaignAccess,
     ownerSpace?: string,
     form?: FormJSON,
     isLive?: boolean,
@@ -36,6 +43,7 @@ export class Campaign {
     publicTitle: string;
     description: string;
     ownership: CampaignOwnership;
+    access: CampaignAccess;
     createdBy: Address;
     ownerSpace?: string;
     activeForm?: Form;
@@ -48,8 +56,9 @@ export class Campaign {
         desc: string,
         ownership: CampaignOwnership,
         createdBy: Address,
-               ) {
+    ) {
         this.name = name;
+        this.access = CampaignAccess.Public;
         this.publicTitle = name;
         this.description = desc;
         this.ownership = ownership;
@@ -89,6 +98,11 @@ export class Campaign {
         }
     }
 
+    isPublishable() : boolean {
+        return !!this.activeForm &&
+            (this.activeForm.questions.length > 0);
+    }
+
     toSummary() : CampaignSummary {
         return {
             campaignId: this.campaignId,
@@ -107,6 +121,7 @@ export class Campaign {
             ownerSpace: this.ownerSpace,
             form: this.activeForm,
             isLive: this.isLive,
+            access: this.access,
         });
     }
 
@@ -117,9 +132,9 @@ export class Campaign {
             this.ownership !== c.ownership ||
             this.createdBy !== c.createdBy ||
             this.ownerSpace !== c.ownerSpace ||
-            this.isLive !== c.isLive;
+            this.isLive !== c.isLive ||
+            this.access !== c.access;
     }
-
 
     // Only works with fromObject output
     updateIfChanged(update: Campaign) : boolean {
@@ -148,6 +163,8 @@ export class Campaign {
             if (!update.activeForm) { throw(new Error(RemovedActiveForm)); }
 
             if (reduced.activeForm!.isChanged(update.activeForm!)) {
+                //const newForm = update.activeForm;
+                //newForm.formId = uuidv4();
                 this.addForm(update.activeForm);
                 hasChanged = true;
             }
@@ -162,6 +179,7 @@ export class Campaign {
             CampaignOwnership.Address, //json.ownership: CampaignOwnership, // FIXME:
             json.createdBy,
         );
+        json
         // TODO: add other details..
         if (json.form) {
             c.activeForm = Form.fromObject(json.form);

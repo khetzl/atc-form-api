@@ -1,7 +1,7 @@
 import "mocha";
 import { expect } from "chai";
 
-import {Campaign, CampaignOwnership, RemovedActiveForm} from '../src/campaigns';
+import {Campaign, CampaignOwnership, CampaignAccess, RemovedActiveForm} from '../src/campaigns';
 import {Form} from '../src/forms';
 
 describe("Campaign - Add/Get Forms", () => {
@@ -123,6 +123,7 @@ describe("Campaign Conversion", () => {
             form: undefined,
             isLive: false,
             ownerSpace: undefined,
+            access: CampaignAccess.Public,
         });
     });
 
@@ -140,13 +141,16 @@ describe("Campaign Conversion", () => {
                    questions: []},
             isLive: false,
             ownerSpace: undefined,
+            access: CampaignAccess.Public,
         });
     });
 
     it("fromObject - Minimal", () => {
         const obj = {name: "name",
                      description: "desc",
-                     createdBy: "0x"};
+                     createdBy: "0x",
+                     access: CampaignAccess.Public,
+                    };
         const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
         expect(Campaign.fromObject(obj)).to.deep.equal(c);
     });
@@ -154,6 +158,7 @@ describe("Campaign Conversion", () => {
         const obj = {name: "name",
                      description: "desc",
                      createdBy: "0x",
+                     access: CampaignAccess.Public,
                      form: {
                          formId: "stuff",
                          questions: [] }};

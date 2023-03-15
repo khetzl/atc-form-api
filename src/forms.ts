@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Type } from 'class-transformer';
 
-import {Question, QuestionBinary, QuestionRating, QuestionText, QuestionJSON} from './question';
+import {Question, QuestionBinary, QuestionRating, QuestionText, QuestionJSON} from './questions';
 import {ValidationSuccess, ValidationError, ValidationResult, VErrorReason} from './validation';
 
 export type FormJSON = {

@@ -7,6 +7,11 @@ export declare enum CampaignOwnership {
     Address = 0,
     Space = 1
 }
+export declare enum CampaignAccess {
+    Public = 0,
+    LinkOnly = 1,
+    Whitelist = 2
+}
 export type CampaignSummary = {
     campaignId?: string;
     title: string;
@@ -18,6 +23,7 @@ export type CampaignJSON = {
     name: string;
     description: string;
     createdBy: string;
+    access: CampaignAccess;
     ownerSpace?: string;
     form?: FormJSON;
     isLive?: boolean;
@@ -28,6 +34,7 @@ export declare class Campaign {
     publicTitle: string;
     description: string;
     ownership: CampaignOwnership;
+    access: CampaignAccess;
     createdBy: Address;
     ownerSpace?: string;
     activeForm?: Form;
@@ -39,6 +46,7 @@ export declare class Campaign {
     addForm(f: Form): void;
     getActiveForm(): Form | undefined;
     getForm(formId: string): Form | undefined;
+    isPublishable(): boolean;
     toSummary(): CampaignSummary;
     toObject(): CampaignJSON;
     private isBasicChanged;

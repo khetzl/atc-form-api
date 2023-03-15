@@ -6,7 +6,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Campaign = exports.CampaignOwnership = exports.RemovedActiveForm = exports.CampaignIdMismatch = void 0;
+exports.Campaign = exports.CampaignAccess = exports.CampaignOwnership = exports.RemovedActiveForm = exports.CampaignIdMismatch = void 0;
 require("reflect-metadata");
 const class_transformer_1 = require("class-transformer");
 const forms_1 = require("./forms");
@@ -18,10 +18,18 @@ var CampaignOwnership;
     CampaignOwnership[CampaignOwnership["Space"] = 1] = "Space";
 })(CampaignOwnership = exports.CampaignOwnership || (exports.CampaignOwnership = {}));
 ;
+var CampaignAccess;
+(function (CampaignAccess) {
+    CampaignAccess[CampaignAccess["Public"] = 0] = "Public";
+    CampaignAccess[CampaignAccess["LinkOnly"] = 1] = "LinkOnly";
+    CampaignAccess[CampaignAccess["Whitelist"] = 2] = "Whitelist";
+})(CampaignAccess = exports.CampaignAccess || (exports.CampaignAccess = {}));
+;
 class Campaign {
     constructor(name, desc, ownership, createdBy) {
         this.isLive = false;
         this.name = name;
+        this.access = CampaignAccess.Public;
         this.publicTitle = name;
         this.description = desc;
         this.ownership = ownership;
@@ -58,6 +66,10 @@ class Campaign {
             return this.historicForms.find(f => f.formId === formId);
         }
     }
+    isPublishable() {
+        return !!this.activeForm &&
+            (this.activeForm.questions.length > 0);
+    }
     toSummary() {
         return {
             campaignId: this.campaignId,
@@ -75,6 +87,7 @@ class Campaign {
             ownerSpace: this.ownerSpace,
             form: this.activeForm,
             isLive: this.isLive,
+            access: this.access,
         });
     }
     isBasicChanged(c) {
@@ -84,7 +97,8 @@ class Campaign {
             this.ownership !== c.ownership ||
             this.createdBy !== c.createdBy ||
             this.ownerSpace !== c.ownerSpace ||
-            this.isLive !== c.isLive;
+            this.isLive !== c.isLive ||
+            this.access !== c.access;
     }
     // Only works with fromObject output
     updateIfChanged(update) {
@@ -113,6 +127,8 @@ class Campaign {
                 throw (new Error(exports.RemovedActiveForm));
             }
             if (reduced.activeForm.isChanged(update.activeForm)) {
+                //const newForm = update.activeForm;
+                //newForm.formId = uuidv4();
                 this.addForm(update.activeForm);
                 hasChanged = true;
             }
@@ -122,6 +138,7 @@ class Campaign {
     static fromObject(json) {
         const c = new Campaign(json.name, json.description, CampaignOwnership.Address, //json.ownership: CampaignOwnership, // FIXME:
         json.createdBy);
+        json;
         // TODO: add other details..
         if (json.form) {
             c.activeForm = forms_1.Form.fromObject(json.form);

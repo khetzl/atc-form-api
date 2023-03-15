@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Question, QuestionJSON } from './question';
+import { Question, QuestionJSON } from './questions';
 import { ValidationResult } from './validation';
 export type FormJSON = {
     formId: string;

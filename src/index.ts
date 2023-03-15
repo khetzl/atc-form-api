@@ -2,6 +2,25 @@ import 'reflect-metadata';
 
 export {Address} from './common';
 
-export {Form} from './forms';
-export {Campaign, CampaignSummary, CampaignOwnership} from './campaigns';
-export {Space} from './spaces';
+export { QuestionType,
+         Question,
+         QuestionJSON,
+         QuestionBinary,
+         QuestionBinaryJSON,
+         QuestionRating,
+         QuestionRatingJSON,
+         QuestionText,
+         QuestionTextJSON,
+         QuestionMultipleChoice,
+         QuestionMultipleChoiceJSON } from './questions';
+
+export { Form,
+         FormJSON } from './forms';
+
+export { Campaign,
+         CampaignJSON,
+         CampaignSummary,
+         CampaignOwnership,
+         CampaignAccess } from './campaigns';
+
+export { Space } from './spaces';

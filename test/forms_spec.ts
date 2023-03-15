@@ -2,7 +2,7 @@ import "mocha";
 import { expect } from "chai";
 
 import { Form } from '../src/forms';
-import { QuestionType, QuestionBinary } from '../src/question';
+import { QuestionType, QuestionBinary } from '../src/questions';
 import {isSuccess, ValidationError} from '../src/validation';
 
 describe("Form Actions", () => {

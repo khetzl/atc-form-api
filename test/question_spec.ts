@@ -1,7 +1,7 @@
 import "mocha";
 import { expect } from "chai";
 
-import { Question, QuestionType, QuestionBinary, QuestionText } from '../src/question';
+import { Question, QuestionType, QuestionBinary, QuestionText } from '../src/questions';
 import { VErrorReason } from '../src/validation';
 
 describe("Validation - Binary", () => {

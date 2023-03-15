@@ -9,7 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Form = void 0;
 require("reflect-metadata");
 const class_transformer_1 = require("class-transformer");
-const question_1 = require("./question");
+const questions_1 = require("./questions");
 const validation_1 = require("./validation");
 class Form {
     constructor(formId) {
@@ -17,20 +17,20 @@ class Form {
         this.questions = [];
     }
     addBinary(text) {
-        const q = new question_1.QuestionBinary(this.questions.length, text);
+        const q = new questions_1.QuestionBinary(this.questions.length, text);
         this.questions.push(q);
     }
     addBinaryCustom(text, choiceA, choiceB) {
-        const q = new question_1.QuestionBinary(this.questions.length, text);
+        const q = new questions_1.QuestionBinary(this.questions.length, text);
         q.setCustomChoices(choiceA, choiceB);
         this.questions.push(q);
     }
     addRating(text) {
-        const q = new question_1.QuestionRating(this.questions.length, text);
+        const q = new questions_1.QuestionRating(this.questions.length, text);
         this.questions.push(q);
     }
     addText(text) {
-        const q = new question_1.QuestionText(this.questions.length, text);
+        const q = new questions_1.QuestionText(this.questions.length, text);
         this.questions.push(q);
     }
     toObject() {
@@ -54,7 +54,7 @@ class Form {
     }
     static fromObject(json) {
         const f = new Form(json.formId);
-        json.questions.forEach((q, i) => { f.questions.push(question_1.Question.fromObject(q)); });
+        json.questions.forEach((q, i) => { f.questions.push(questions_1.Question.fromObject(q)); });
         return f;
     }
     validateResponse(r) {
@@ -83,7 +83,7 @@ class Form {
     }
 }
 __decorate([
-    (0, class_transformer_1.Type)(type => question_1.Question)
+    (0, class_transformer_1.Type)(type => questions_1.Question)
 ], Form.prototype, "questions", void 0);
 exports.Form = Form;
 ;
