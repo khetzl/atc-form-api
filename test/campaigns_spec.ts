@@ -154,6 +154,16 @@ describe("Campaign Conversion", () => {
         const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
         expect(Campaign.fromObject(obj)).to.deep.equal(c);
     });
+    it("fromObject - Minimal - restricted", () => {
+        const obj = {name: "name",
+                     description: "desc",
+                     createdBy: "0x",
+                     access: CampaignAccess.LinkOnly,
+                    };
+        const c = new Campaign("name", "desc", CampaignOwnership.Address, "0x");
+        c.access = CampaignAccess.LinkOnly;
+        expect(Campaign.fromObject(obj)).to.deep.equal(c);
+    });
     it("fromObject - With Form", () => {
         const obj = {name: "name",
                      description: "desc",

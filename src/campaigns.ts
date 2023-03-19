@@ -14,6 +14,7 @@ export enum CampaignOwnership {
 
 export enum CampaignAccess {
     Public,  // Anyone can answer
+    Space,   // Anyone from the space.
     LinkOnly, // UI won't refer user to this
     Whitelist, // Only specific users can fill it in even if others qualify
 };
@@ -154,6 +155,7 @@ export class Campaign {
             this.ownerSpace = update.ownerSpace;
             this.activeForm = update.activeForm;
             this.isLive = update.isLive;
+            this.access = update.access;
             hasChanged = true;
         }
 
@@ -163,8 +165,6 @@ export class Campaign {
             if (!update.activeForm) { throw(new Error(RemovedActiveForm)); }
 
             if (reduced.activeForm!.isChanged(update.activeForm!)) {
-                //const newForm = update.activeForm;
-                //newForm.formId = uuidv4();
                 this.addForm(update.activeForm);
                 hasChanged = true;
             }
@@ -179,14 +179,14 @@ export class Campaign {
             CampaignOwnership.Address, //json.ownership: CampaignOwnership, // FIXME:
             json.createdBy,
         );
-        json
-        // TODO: add other details..
+
         if (json.form) {
             c.activeForm = Form.fromObject(json.form);
         }
         if (json.campaignId) { c.campaignId = json.campaignId; }
         if (json.ownerSpace) { c.ownerSpace = json.ownerSpace; }
         if (json.isLive) { c.isLive = json.isLive; }
+        c.access = json.access;
         return c;
     }
 }

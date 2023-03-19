@@ -9,8 +9,9 @@ export declare enum CampaignOwnership {
 }
 export declare enum CampaignAccess {
     Public = 0,
-    LinkOnly = 1,
-    Whitelist = 2
+    Space = 1,
+    LinkOnly = 2,
+    Whitelist = 3
 }
 export type CampaignSummary = {
     campaignId?: string;

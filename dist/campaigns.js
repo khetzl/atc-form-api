@@ -21,8 +21,9 @@ var CampaignOwnership;
 var CampaignAccess;
 (function (CampaignAccess) {
     CampaignAccess[CampaignAccess["Public"] = 0] = "Public";
-    CampaignAccess[CampaignAccess["LinkOnly"] = 1] = "LinkOnly";
-    CampaignAccess[CampaignAccess["Whitelist"] = 2] = "Whitelist";
+    CampaignAccess[CampaignAccess["Space"] = 1] = "Space";
+    CampaignAccess[CampaignAccess["LinkOnly"] = 2] = "LinkOnly";
+    CampaignAccess[CampaignAccess["Whitelist"] = 3] = "Whitelist";
 })(CampaignAccess = exports.CampaignAccess || (exports.CampaignAccess = {}));
 ;
 class Campaign {
@@ -117,6 +118,7 @@ class Campaign {
             this.ownerSpace = update.ownerSpace;
             this.activeForm = update.activeForm;
             this.isLive = update.isLive;
+            this.access = update.access;
             hasChanged = true;
         }
         if (!reduced.activeForm) {
@@ -127,8 +129,6 @@ class Campaign {
                 throw (new Error(exports.RemovedActiveForm));
             }
             if (reduced.activeForm.isChanged(update.activeForm)) {
-                //const newForm = update.activeForm;
-                //newForm.formId = uuidv4();
                 this.addForm(update.activeForm);
                 hasChanged = true;
             }
@@ -138,8 +138,6 @@ class Campaign {
     static fromObject(json) {
         const c = new Campaign(json.name, json.description, CampaignOwnership.Address, //json.ownership: CampaignOwnership, // FIXME:
         json.createdBy);
-        json;
-        // TODO: add other details..
         if (json.form) {
             c.activeForm = forms_1.Form.fromObject(json.form);
         }
@@ -152,6 +150,7 @@ class Campaign {
         if (json.isLive) {
             c.isLive = json.isLive;
         }
+        c.access = json.access;
         return c;
     }
 }
